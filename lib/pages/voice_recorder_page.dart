@@ -1,6 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 class VoiceRecorderPage extends StatefulWidget {
@@ -23,10 +22,13 @@ class _VoiceRecorderPageState extends State<VoiceRecorderPage> {
       }
     } else {
       if (!await _recorder.hasPermission()) return;
-      final dir = await getApplicationDocumentsDirectory();
-      final path =
-          '${dir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final path = '/storage/emulated/0/Documents/SoftDevDemo/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
       await _recorder.start(const RecordConfig(), path: path);
+      if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Recording to ${path}')),
+      );
+    }
       setState(() => _isRecording = true);
     }
   }

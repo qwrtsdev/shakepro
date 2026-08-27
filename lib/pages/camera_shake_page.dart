@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +46,16 @@ class _CameraShakePageState extends State<CameraShakePage> {
       await Future.delayed(const Duration(seconds: 1));
     }
     final file = await _controller?.takePicture();
+    final targetDirectory = Directory('/storage/emulated/0/Documents/SoftDevDemo');
+    
+    final String fileName = 'IMG_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final String targetPath = '${targetDirectory.path}/$fileName';
+
+    await file?.saveTo(targetPath);
+    
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Captured! Saved to ${file?.path}')),
+        SnackBar(content: Text('Captured to ${targetPath}')),
       );
     }
     setState(() => _countdown = 0);
