@@ -38,7 +38,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Ask for camera + mic permission once up front.
     Future.microtask(
       () => [Permission.camera, Permission.microphone].request(),
     );

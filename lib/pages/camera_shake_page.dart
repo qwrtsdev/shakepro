@@ -16,7 +16,6 @@ class _CameraShakePageState extends State<CameraShakePage> {
 
   int _countdown = 0;
   bool _busy = false;
-  String? _lastPhotoPath;
 
   static const double _shakeThreshold = 20.0; // tune sensitivity here
   DateTime _lastShake = DateTime.now();
@@ -57,10 +56,9 @@ class _CameraShakePageState extends State<CameraShakePage> {
 
     if (_controller != null && _controller!.value.isInitialized) {
       final file = await _controller!.takePicture();
-      _lastPhotoPath = file.path;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved: ${file.path}')),
+          SnackBar(content: Text('Captured!')),
         );
       }
     }
@@ -83,24 +81,13 @@ class _CameraShakePageState extends State<CameraShakePage> {
       alignment: Alignment.center,
       children: [
         Positioned.fill(child: CameraPreview(_controller!)),
-        if (_countdown > 0)
-          Text(
-            '$_countdown',
-            style: const TextStyle(
-              fontSize: 100,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              shadows: [Shadow(color: Colors.black, blurRadius: 12)],
-            ),
-          ),
         Positioned(
           bottom: 16,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: Colors.black54,
             child: Text(
-              _busy ? 'Hold still...' : 'Shake phone to take a photo',
-              style: const TextStyle(color: Colors.white),
+              _busy ? '$_countdown' : 'Shake it!!!',
+              style: const TextStyle(color: Colors.white, fontSize: 30),
             ),
           ),
         ),
