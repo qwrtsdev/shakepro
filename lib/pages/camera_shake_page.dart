@@ -13,12 +13,9 @@ class CameraShakePage extends StatefulWidget {
 class _CameraShakePageState extends State<CameraShakePage> {
   CameraController? _controller;
   StreamSubscription<AccelerometerEvent>? _accelSub;
-
   int _countdown = 0;
-  bool _busy = false;
 
-  static const double _shakeThreshold = 20.0; // tune sensitivity here
-  DateTime _lastShake = DateTime.now();
+  static const double _shakeThreshold = 18.0;
 
   @override
   void initState() {
@@ -37,32 +34,23 @@ class _CameraShakePageState extends State<CameraShakePage> {
 
   void _onAccel(AccelerometerEvent e) {
     final g = sqrt(e.x * e.x + e.y * e.y + e.z * e.z);
-    final now = DateTime.now();
-    if (g > _shakeThreshold &&
-        !_busy &&
-        now.difference(_lastShake).inMilliseconds > 1500) {
-      _lastShake = now;
+    if (g > _shakeThreshold && _countdown == 0) {
       _runCountdownAndCapture();
     }
   }
 
   Future<void> _runCountdownAndCapture() async {
-    setState(() => _busy = true);
     for (int i = 3; i >= 1; i--) {
       setState(() => _countdown = i);
       await Future.delayed(const Duration(seconds: 1));
     }
-    setState(() => _countdown = 0);
-
-    if (_controller != null && _controller!.value.isInitialized) {
-      final file = await _controller!.takePicture();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Captured!')),
-        );
-      }
+    final file = await _controller?.takePicture();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Captured! Saved to ${file?.path}')),
+      );
     }
-    setState(() => _busy = false);
+    setState(() => _countdown = 0);
   }
 
   @override
@@ -86,8 +74,8 @@ class _CameraShakePageState extends State<CameraShakePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
-              _busy ? '$_countdown' : 'Shake it!!!',
-              style: const TextStyle(color: Colors.white, fontSize: 30),
+              _countdown > 0 ? '$_countdown' : 'Shake it!!!',
+              style: const TextStyle(color: Colors.white, fontSize: 35),
             ),
           ),
         ),
