@@ -16,7 +16,7 @@ class _CameraShakePageState extends State<CameraShakePage> {
   StreamSubscription<AccelerometerEvent>? _accelSub;
   int _countdown = 0;
 
-  static const double _shakeThreshold = 18.0;
+  static const double _shakeThreshold = 20.0;
 
   @override
   void initState() {
