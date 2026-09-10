@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'pages/camera_shake_page.dart';
-import 'pages/image_viewer_page.dart';
 import 'pages/voice_recorder_page.dart';
+import 'pages/gallery_page.dart';
 import 'pages/settings_page.dart';
+import 'package:provider/provider.dart';
+import 'settings.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => SettingsModel(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -34,8 +40,8 @@ class _HomePageState extends State<HomePage> {
 
   final _pages = const [
     CameraShakePage(),
-    ImageViewerPage(),
     VoiceRecorderPage(),
+    Gallery(),
     SettingsPage(),
   ];
 
@@ -61,12 +67,12 @@ class _HomePageState extends State<HomePage> {
             label: 'Shake Cam',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.photo_album),
-            label: 'Viewer',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.mic),
             label: 'Recorder',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.photo_library),
+            label: 'Gallery',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
