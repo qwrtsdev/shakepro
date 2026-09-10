@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'pages/camera_shake_page.dart';
+import 'pages/image_viewer_page.dart';
 import 'pages/voice_recorder_page.dart';
+import 'pages/settings_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +34,9 @@ class _HomePageState extends State<HomePage> {
 
   final _pages = const [
     CameraShakePage(),
+    ImageViewerPage(),
     VoiceRecorderPage(),
+    SettingsPage(),
   ];
 
   @override
@@ -48,6 +52,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: SafeArea(child: _pages[_index]),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _index,
         onTap: (i) => setState(() => _index = i),
         items: const [
@@ -56,8 +61,16 @@ class _HomePageState extends State<HomePage> {
             label: 'Shake Cam',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.photo_album),
+            label: 'Viewer',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.mic),
             label: 'Recorder',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
