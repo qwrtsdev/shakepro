@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:provider/provider.dart';
+import '../settings.dart';
 
 class CameraShakePage extends StatefulWidget {
   const CameraShakePage({super.key});
@@ -16,8 +18,6 @@ class _CameraShakePageState extends State<CameraShakePage> {
   StreamSubscription<AccelerometerEvent>? _accelSub;
   int _countdown = 0;
 
-  static const double _shakeThreshold = 20.0;
-
   @override
   void initState() {
     super.initState();
@@ -28,31 +28,42 @@ class _CameraShakePageState extends State<CameraShakePage> {
   Future<void> _initCamera() async {
     final cameras = await availableCameras();
     if (cameras.isEmpty) return;
-    _controller = CameraController(cameras.first, ResolutionPreset.medium);
+    final resolution = context.read<SettingsModel>().photoQuality == 'Max'
+        ? ResolutionPreset.max
+        : context.read<SettingsModel>().photoQuality == 'High'
+            ? ResolutionPreset.high
+            : context.read<SettingsModel>().photoQuality == 'Medium'
+                ? ResolutionPreset.medium
+                : ResolutionPreset.low;
+    _controller = CameraController(cameras.first, resolution);
     await _controller!.initialize();
     if (mounted) setState(() {});
   }
 
   void _onAccel(AccelerometerEvent e) {
     final g = sqrt(e.x * e.x + e.y * e.y + e.z * e.z);
-    if (g > _shakeThreshold && _countdown == 0) {
+    final thresholdpercentage = context.read<SettingsModel>().sensitivity;
+    final threshold = 10 + (thresholdpercentage / 100 * (50 - 10));
+    if (g > threshold && _countdown == 0) {
       _runCountdownAndCapture();
     }
   }
 
   Future<void> _runCountdownAndCapture() async {
-    for (int i = 3; i >= 1; i--) {
+    final countdown = context.read<SettingsModel>().countdown;
+    for (int i = countdown; i >= 1; i--) {
       setState(() => _countdown = i);
       await Future.delayed(const Duration(seconds: 1));
     }
     final file = await _controller?.takePicture();
-    final targetDirectory = Directory('/storage/emulated/0/Documents/SoftDevDemo');
-    
+    final targetDirectory =
+        Directory('/storage/emulated/0/Documents/SoftDevDemo');
+
     final String fileName = 'IMG_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final String targetPath = '${targetDirectory.path}/$fileName';
 
     await file?.saveTo(targetPath);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Captured to ${targetPath}')),
