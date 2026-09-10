@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
+import 'package:provider/provider.dart';
+import '../settings.dart';
 
 class VoiceRecorderPage extends StatefulWidget {
   const VoiceRecorderPage({super.key});
@@ -22,13 +24,35 @@ class _VoiceRecorderPageState extends State<VoiceRecorderPage> {
       }
     } else {
       if (!await _recorder.hasPermission()) return;
-      final path = '/storage/emulated/0/Documents/SoftDevDemo/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      await _recorder.start(const RecordConfig(), path: path);
-      if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recording to ${path}')),
+      final path =
+          '/storage/emulated/0/Documents/SoftDevDemo/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final quality = context.read<SettingsModel>().recordingQuality;
+      final int bitRate;
+      final int sampleRate;
+      switch (quality) {
+        case 'High':
+          bitRate = 256000;
+          sampleRate = 48000;
+          break;
+        case 'Low':
+          bitRate = 16000;
+          sampleRate = 4000;
+          break;
+        case 'Medium':
+        default:
+          bitRate = 64000;
+          sampleRate = 22050;
+      }
+
+      await _recorder.start(
+        RecordConfig(bitRate: bitRate, sampleRate: sampleRate),
+        path: path,
       );
-    }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Recording to $path')),
+        );
+      }
       setState(() => _isRecording = true);
     }
   }
